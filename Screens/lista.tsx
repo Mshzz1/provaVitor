@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import * as SQLite from 'expo-sqlite';
+import { useFocusEffect } from '@react-navigation/native';
+import { Linking } from 'react-native';
 
 const db = SQLite.openDatabaseSync('database.db');
 
@@ -13,13 +15,11 @@ type Contato = {
 export default function Lista() {
   const [contatos, setContatos] = useState<Contato[]>([]);
 
-  useEffect(() => {
-    fetchContatos();
-  }, []);
-
-  useEffect(() => {
-          initializeDatabase();
-      }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchContatos();
+    }, [])
+  );
   
       const initializeDatabase = async () => {
           try {   
@@ -49,10 +49,12 @@ export default function Lista() {
         <View style={styles.contato}>
             <Text style={styles.nome}>{item.nome}</Text>
             <Text style={styles.telefone}>{item.numero}</Text>
-            <TouchableOpacity style={styles.botao}>
-            <Text style={styles.botaoTexto}>Ligar</Text>
+            <TouchableOpacity
+              style={styles.botao}
+              onPress={() => Linking.openURL(`tel:${item.numero}`)}>
+              <Text style={styles.botaoTexto}>Ligar</Text>
             </TouchableOpacity>
-        </View>
+          </View>
     )}
     />
   );
